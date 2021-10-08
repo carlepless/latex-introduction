@@ -1,0 +1,349 @@
+\documentclass[hidelinks, 12pt]{article}
+
+% PACKAGES
+\usepackage{amssymb}
+\usepackage{natbib}
+\usepackage{amsmath}
+\usepackage[none]{hyphenat}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{algorithm}
+\usepackage{babel}[en]
+\usepackage[hidelinks]{hyperref}
+\usepackage{geometry}
+\usepackage[parfill]{parskip}
+
+% SPACING
+\usepackage{setspace}
+\onehalfspacing
+
+% GRAPHICS
+\graphicspath{{figures/}}
+
+% COLORS
+\definecolor{kured}{RGB}{144, 26, 30}
+\definecolor{kugrey}{RGB}{102, 102, 102}
+\definecolor{kudarkgrey}{RGB}{35, 55, 59}
+
+% PAGE LAYOUT
+\geometry{
+ a4paper,
+ total={170mm,257mm},
+ margin=25mm,
+ top=20mm
+}
+
+\title{Introduction to \LaTeX}
+\author{Carl-Emil Pless}
+\date{8th of October 2021}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\section{A thrilling introduction}
+For very good reasons, we want to look at what determines the hourly wage in the U.S. In order to do so, we want to use \texttt{Overleaf}. This document is meant as a reference that you can use when working on your own projects that provides a brief introduction (through examples) to \LaTeX. In order to compile your document, you want to press \texttt{CTRL (CMD) + ENTER}, \texttt{CTRL (CMD) + S}, or the big green button that says \emph{recompile}.
+\section{Writing a bit of rather arbitrary math}
+In order to estimate a linear model of hourly wage as a function of various covariates, a range of assumptions need to be in place. We assume that the data is randomly sampled and follows the model for the population:
+\begin{align*}
+    y_{i} = x^{'}_{i} \beta + u_i,
+\end{align*}
+for observations $i=1,2,\dotsc,N$. Let $\beta$ be a $k\times 1$ vector of parameters and $u_i$ is an asymptotically normal error term, such that $u_i \sim i.i.d.N(0,\sigma^2)$. Let $x_{0i}=1$, such that $\beta_0$ corresponds to the population intercept and the model can be described as:
+\begin{align*}
+    y_{i} = x^{'}_{i} \beta + u_i = x_{0i}\beta_0 + x_{1i}\beta_1 + \dotsc + x_{ik}\beta_k + u_i.
+\end{align*}
+Using the Law of Iterated Expectations we assume that $x_i$ and $u_i$ are uncorrelated such that $E[x_i u_i]=E[E[x_i u_i \mid x_I]]=E[x_i E[u_i\mid x_i]]=0$. This implies that if the $k\times k$ matrix $E[x_i x_i ^{'}]$ is non-singular (and hence invertible) we can derive the OLS estimator as:
+\begin{align*}
+    \beta = E[x_i x_i ^{'}]^{-1} E[x_i y_i], \tag{1} 
+\end{align*}
+which is the population parameter. 
+\subsection{The OLS estimator}
+From a finite sample of $y_i$ and $x_i$, we cannot compute the expectations and $(1)$ is infeasible. Therefore, we replace expectations with sample averages in (1), such that:
+\begin{align*}
+    \hat{\beta}=\left ( N^{-1} \sum_{i=1}^N x_i x_i^{'} \right ) ^{-1} \left ( N^{-1} \sum_{i=1} ^N x_i y_i \right ). \tag{2}
+\end{align*}
+In order for the steps from (1) to (2) to work, we need a law of large numbers (LLN) to apply, such that the sample averages converge to the expectations for increasing sample sizes. In other words:
+\begin{align*}
+    N^{-1}\sum_{i=1}^N x_i y_i \rightarrow E[x_i y_i] \quad \text{and} \quad N^{-1}\sum_{i=1}^N x_i x_i ^{'} \rightarrow  E[x_i x_i ^{'}].
+\end{align*}
+Under these assumptions it holds that $\hat{\beta}$ is defined and (2) converges to the true value in (1). In addition, we note that this estimator is consistent and unbiased when $u_i \sim i.i.d.N(0,\sigma^2)$. In fact, our estimator is the minimum variance unbiased (even nonlinear) estimator, under these conditions.
+\subsubsection{Making a subsubsubsection}
+You make subsections by adding the proper amount of \emph{sub} prefixes to your section. If you include a star (\texttt{subsubsection*}), then it will be unnumbered. These are automatically included in the table of contents. 
+\subsubsection{Making a list}
+Making a list is quite simple. If you want it to be numerated (or alphabetical) you want to be using the \texttt{enumerate} or \texttt{enumerate[label=\textbackslash alph*]} environment like so:
+\begin{enumerate}
+    \item My first item
+    \item My second item
+    \item .
+    \item .
+    \item .
+    \item My last item
+\end{enumerate}
+My alphabetized version:
+\begin{enumerate}[label=\alph*]
+    \item My first (alphabetized) item
+    \item My second (alphabetized) item
+    \item .
+    \item .
+    \item . 
+    \item My last (alphabetized) item
+\end{enumerate}
+\section{Functionality with \emph{R}}
+In order to compile \emph{R} code directly in \texttt{Overleaf}, all you need to do is rename your file to have a \texttt{.Rtex} ending. If you have not changed the file name already, then this would be from \texttt{main.tex} to \texttt{main.Rtex}. Then you can freely write \emph{R} code directly in \texttt{Overleaf} by wrapping your code in \texttt{<<>>} and ending in \texttt{@}.
+
+You should note that it is not possible to use external packages, as you do not have an actual working library. A possible workaround is to simply specify the functions you need manually by finding the relevant source code. However, it is rare that you actually need to compile more advanced \texttt{R}-code directly, rather than just include your results. 
+
+\subsection{A working example}
+In the introduction, we thoroughly discussed why looking at wage determinants was interesting. Therefore, we decide to estimate the following:
+\begin{align*}
+    \log(educ) &= \beta_0 + \beta_1 educ + \beta_2 exper + \beta_3  tenure \\
+               &+ \beta_4 nonwhite + \beta_5 female + \beta_6 married + u, 
+\end{align*}
+where $u\sim i.i.d.N(0,\sigma^2)$. Before we can do this, we have to upload the relevant data to \texttt{Overleaf}. See the \emph{R} script I provided in the appendix on how to save the data set \texttt{wage1} from the \texttt{wooldridge} package. Uploading it to \texttt{Overleaf} should be relatively intuitive. Once you have done this, we need to load the data set:
+<<>>=
+load("data.RData")
+@
+Now that we have loaded the data set, we may be interested in looking at some generic information on parts of the data set. For instance, what variables are included:
+<<>>=
+names(data)[1:6]
+@
+Also, it may be useful to know what types of random variables they are:
+<<>>=
+str(data[1:7])
+@
+\section{Making tables and inserting figures}
+\subsection{An important table}
+Now I want to make a table about the information I just gathered. Why? Well sometimes you just wanna make a table. The basic principle behind tables in \LaTeX is that you should get an external program to make them. Mostly because this is an \emph{extremely} tedious process. But for the purpose of this introduction, we will do it anyway. Personally, I use \texttt{stargazer} or something like \href{https://www.tablesgenerator.com}{\color{blue}tablesgenerator.com}.
+\begin{table}[H]
+    \centering
+    \caption{My very first \LaTeX \: table}
+    \label{tab:my_label}
+    \begin{tabular}{c|c|c}
+        Variable & Description & Type  \\ \hline
+        \texttt{wage} & Wage in USD per hour & Numeric  \\
+        \texttt{educ} & Years of education & Integer \\
+        $\vdots$ & $\vdots$ & $\vdots$ \\
+        $\vdots$ & $\vdots$ & $\vdots$ \\
+        \texttt{married} & Marital status & Binary\\
+        \hline \hline 
+    \end{tabular}
+\end{table}
+
+Once you get the hang of making these tables, it is pretty straight forward, but mostly annoying. The possibilities are almost endless for making very nice tables. \\ \\
+\textit{\textbf{Note}: There is a range of different options for the knitr package. A good place to start is the introduction Overleaf have made: \href{https://www.overleaf.com/learn/latex/Knitr}{\color{blue}www.overleaf.com/learn/latex/Knitr}}
+
+\subsection{A brilliant plot}
+Lets suppose I made an awesome plot of wage and gender in \texttt{ggplot2} that I want to include. First, I need to upload the plot to \texttt{Overleaf}. And then I can just include it:
+\begin{figure}[H]
+    \centering
+    \caption{My nice figure}
+    \label{fig:my_label}
+    \includegraphics[width=0.75\textwidth]{plot.png}
+\end{figure}
+\section{stargazer}
+Now I want to estimate my the model I specified:
+<<>>=
+wage_model <- lm(log(wage) ~ educ + exper + tenure + 
+                nonwhite + female + married, 
+                data=data)
+@
+Looking at the summary, I note that I should drop $exper$ and $nonwhite$:
+<<>>=
+wage_model2 <- lm(log(wage) ~ educ + tenure + 
+                female + married, 
+                data=data)
+summary(wage_model2)
+@
+Having estimated two models, I would now like to report my findings. The package \texttt{stargazer} (that most of you are probably familiar with) creates tables of estimation output for \LaTeX \: natively:
+<<eval=FALSE>>=
+stargazer(wage_model, wage_model2, 
+          covariate.labels= c("Intercept","Education", "Experience",
+                              "Tenure", "Non-white",
+                              "Female", "Married"),
+          dep.var.labels = "log(wage) per hour",
+          star.cutoffs = c(0.05, 0.01, 0.001),
+          intercept.bottom=FALSE,
+          single.row = TRUE,
+          title="Estimation results")
+@
+If you copy the results in your \emph{R}-console (when running the above code) into \texttt{Overleaf}, the following table should appear:
+\begin{table}[!htbp] \centering 
+  \caption{Estimation results} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}}lcc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & \multicolumn{2}{c}{\textit{Dependent variable:}} \\ 
+\cline{2-3} 
+\\[-1.8ex] & \multicolumn{2}{c}{log(wage) per hour} \\ 
+\\[-1.8ex] & (1) & (2)\\ 
+\hline \\[-1.8ex] 
+ Intercept & 0.491$^{***}$ (0.102) & 0.570$^{***}$ (0.092) \\ 
+  Education & 0.084$^{***}$ (0.007) & 0.080$^{***}$ (0.007) \\ 
+  Experience & 0.003 (0.002) &  \\ 
+  Tenure & 0.017$^{***}$ (0.003) & 0.019$^{***}$ (0.003) \\ 
+  Non-white & $-$0.003 (0.060) &  \\ 
+  Female & $-$0.286$^{***}$ (0.037) & $-$0.280$^{***}$ (0.037) \\ 
+  Married & 0.126$^{**}$ (0.040) & 0.147$^{***}$ (0.038) \\ 
+ \hline \\[-1.8ex] 
+Observations & 526 & 526 \\ 
+R$^{2}$ & 0.404 & 0.400 \\ 
+Adjusted R$^{2}$ & 0.397 & 0.395 \\ 
+Residual Std. Error & 0.413 (df = 519) & 0.413 (df = 521) \\ 
+F Statistic & 58.540$^{***}$ (df = 6; 519) & 86.699$^{***}$ (df = 4; 521) \\ 
+\hline 
+\hline \\[-1.8ex] 
+\textit{Note:}  & \multicolumn{2}{r}{$^{*}$p$<$0.05; $^{**}$p$<$0.01; $^{***}$p$<$0.001} \\ 
+\end{tabular} 
+\end{table}
+Which was multitudes more efficient that creating it by hand. In general, there are many tools that allow for other programs to export tables into \LaTeX. This is also possible with other statistics programs such as Stata, SAS, OxMetrics, and Python.  
+\section{BibTeX}
+BibTeX is a reference handling tool built specifically for use with \LaTeX. It looks and seems a bit intimidating at first, but as with most coding, it is rather simple once you get the hang of it. Almost all publishers provide a pre-made BibTeX reference that you can just steal. If not, you have to make one yourself. Say I want to reference Verbeeks's book on econometrics. This requires, that I create a new file in my \texttt{Overleaf} project with the extension name \texttt{.bib}. This tells \texttt{Overleaf} that it is working with a BibTeX file. In that file, you want to define your reference as:
+\begin{verbatim}
+@Book{Verbeek2017,
+  title     = {A Guide to Modern Econometrics},
+  publisher = {John Wiley \& Sons},
+  year      = {2017},
+  author    = {Verbeek, M.},
+  address   = {Rotterdam School of Management, Erasmus University, Rotterdam},
+  edition   = {Fifth},
+}
+\end{verbatim}
+Note that you can specify a range of different items using the @ command. For instance, \texttt{@Article} if it is a journal article you are referencing. It is important to remember the "tag" you give each entry on your references. This is the \texttt{Verbeek2017} at the start of entry, which can be whatever you want. This is how you access your references when writing. So if I want to reference the book passively I can simply use the \texttt{\textbackslash citep\{Verbeek2017\}} which will look like this: \citep{Verbeek2017}. The active equivalent is simply \texttt{\textbackslash cite\{Verbeek2017\}}, which provides the following text output \cite{Verbeek2017}. Making a list of your references is then simply a matter of writing \texttt{\textbackslash bibliography\{references\}}, where \texttt{references} should be the name of your \texttt{.bib} file. This will automatically update as you include more or less references. The preamble I provided uses standard author-year references, but you can specify this to whichever citation style you need. All in all, writing:
+\begin{verbatim}
+\bibliographystyle{apalike}
+\bibliography{references}
+\end{verbatim}
+will produce the desired output:
+\bibliographystyle{apalike}
+\bibliography{references}
+\subsection{Important note on handling references}
+In practice, the by far easiest solution is using a reference management program, where both Zotero and Mendeley can produce \texttt{.bib} outputs. After producing your desired \texttt{.bib} file, all you have to do is upload it to \texttt{Overleaf}. JabRef is an example of a program dedicated exclusively to making BibTeX more applicable. Personally, I use Zotero. 
+\section{TikZ (making your own figures)}
+Another ingenious part of \LaTeX is the \texttt{TikZ} package that allows you to create your own completely customizable plots. This package is in no way whatsoever intuitive, but makes some extremely neat plots. And again, as with all coding, some nice person on the internet already made it for you. In the case of \texttt{TikZ} the best guide I have come across is the following: \href{https://sites.google.com/site/kochiuyu/Tikz}{\color{blue}TikZ Cookbok}. This allows you to make figures such as the textbook optimal choice:
+\begin{figure}[H]
+\centering
+    \begin{tikzpicture}[scale=0.75]
+            \draw[ultra thick,<->] (0,10) node[above]{$x_2$}--(0,0)--(10,0) node[right]{$x_1$};
+            \node [below left] at (0,0) {$0$};
+            \node [below] at (5,0) {$x_{1}^{*}$};
+            \node [left] at (0,5) {$x_{2}^{*}$};
+            \draw(1,9)--(9,1) node[right]{$-\frac{p_1}{p_2}$};
+            \draw(0,5)--(5,5)--(5,0);
+            \draw(2,10) ..controls (3.33,6) and (6,3.33) .. (10,2) node[right]{$u(x_1,x_2)=k$};
+            \end{tikzpicture}
+\end{figure}
+Or slightly more advanced (read: confusing) figures:
+\begin{figure}[H]
+\centering
+    \begin{tikzpicture}[scale = 0.80]
+    \draw[ultra thick,<->] (0,10) node[above]{\Large{$\pi$}}--(0,0)--(10,0) node[right]{\Large{$Y$}};
+    \draw[very thick, color = kudarkgrey](1,1)--(9,9) node[right]{$AS_0$};
+    \draw[very thick, color = kured](3,1)--(9,7) node[right]{$AS_1$};
+    \draw[very thick, color = kured](2,7)--(7,2) node[below]{$AD_1$};
+    \draw[very thick, color = kured](2,8.5)--(8.5,2) node[below]{$AD_2$};
+    \draw[very thick,color=kudarkgrey] (6,0) node[below]{$Y_0$}--(6,10) node[above] {LRAS};
+    \draw[very thick, dashed, color = kured](4.5,4.5)--(4.5,0) node[below]{$Y_2$};
+    \draw[very thick, dashed, color = kured](4.5,4.5)--(0,4.5) node[left]{$\pi_2$};
+    \draw[very thick, dashed](6,6)--(0,6) node[left]{$\pi_0=\pi_1$};
+    \draw[very thick, dashed, color = kured](3,6)--(3,0) node[below]{$Y_1$};
+    \draw[very thick, color = kudarkgrey](3,9)--(9,3) node[right]{$AD_0$};
+    \draw[very thick, <-, color = kured](6.5,2.5)--(8,4);
+    \draw[color = kured, font = \scriptsize] (3,6) node[above] {$E_1$};
+    \draw[color = kured, font = \scriptsize] (4.5,4.5) node[above] {$E_2$};
+    \draw[color = kured, ->, ultra thick] (4.5,4.5)--(6,6);
+    \draw[color = kured, ->, ultra thick] (4.5,4.5)--(5,5);
+    \draw[color = kured, ->, ultra thick] (4.5,4.5)--(5.5,5.5);
+    \draw[color = kured, ->, ultra thick] (4.5,4.5)--(5.75,5.75);
+    \draw[color = kured, ->, ultra thick] (4.5,4.5)--(5.25,5.25);
+    \draw[color = kured, ->, ultra thick] (6.25,4.25)--(5.25,5.25);
+    \draw[color = kured, ->, ultra thick] (6.25,4.25)--(6, 4.5);
+    \draw[color = kured, ->, ultra thick] (6.25,4.25)--(5.75,4.75);
+    \draw[color = kured, ->, ultra thick] (6.25,4.25)--(5.5,5);
+    \end{tikzpicture}
+\end{figure}
+The possibilities with \texttt{TikZ} are almost endless, as you define and control everything. In addition, it allows you to reproduce your results endlessly, which is a surprisingly large advantage - just like with \emph{R}.
+\section{\emph{R}-code}
+<<eval=FALSE>>=
+# New script
+rm(list=ls())
+# Working directory
+setwd("")
+
+# Installing relevant packages 
+install.packages("wooldridge") # Don't run this if already installed
+install.packages("ggplot2")    # Don't run this if already installed 
+install.packages("plyr")       # Don't run this if already installed 
+install.packages("stargazer")  # Don't run this if already installed
+
+#Retrieving them
+library(ggplot2)
+library(wooldridge)
+library(plyr)
+library(stargazer)
+
+# We wanna use tha dataset "wage1" in wooldridge
+data<-wage1
+
+# Save it a place you can find it, as a .RData extension
+save(data,file="data.RData")
+
+# Some generic information about the data set
+names(data)[1:7]
+str(data[1:7])
+
+# A nice plot about the data
+data$gender <- "M"
+data$gender[data$female==1] <- "F"
+mu <- ddply(data, "gender", summarise, grp.mean=mean(wage))
+
+wageplot <- ggplot(data, aes(x=wage, color=gender)) +
+        geom_density() +
+        geom_vline(data=mu, aes(xintercept=grp.mean, color=gender), 
+                   linetype="dashed") +
+        theme_bw()
+wageplot
+
+# Save the plot somewhere you can find it
+ggsave("plot.png", plot=wageplot)
+
+# Making a linear model
+wage_model <- lm(log(wage) ~ educ + exper + tenure 
+                 + nonwhite + female + married,
+                 data=data)
+
+summary(wage_model)
+
+# Making another linear model
+wage_model2 <- lm(log(wage) ~ educ + tenure 
+                 + female + married,
+                 data=data)
+
+summary(wage_model2)
+
+# Making a hot table for Overleaf
+stargazer(wage_model, wage_model2, 
+          covariate.labels= c("Intercept","Education", "Experience",
+                              "Tenure", "Non-white",
+                              "Female", "Married"),
+          dep.var.labels = "log(wage) per hour",
+          star.cutoffs = c(0.05, 0.01, 0.001),
+          intercept.bottom=FALSE,
+          single.row = TRUE,
+          title="Estimation results")
+@
+
+
+
+
+
+
+
+
+\end{document}
