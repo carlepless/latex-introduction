@@ -1,7 +1,7 @@
 # Introduction to LaTeX at UCPH
 ## Contact: Carl-Emil Pless
 
-### Overleaf: https://www.overleaf.com/read/rbxgxfdbqysb
+### Overleaf: https://www.overleaf.com/read/tnpkccmqvrcm
 
 Presentation (beamer): https://github.com/carlepless/latex-introduction/blob/main/presentation/presentation.tex
 
